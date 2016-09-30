@@ -41,6 +41,15 @@ db = mongo.setup(config);
 db.add('users');
 ```
 
+Basically, wrapper `setup` method constructs connection url from `config` object,
+according following format(if no host is given, `localhost` is used):
+
+```
+mongodb://<username>:<password>@<hosts[0].name>:<hosts[0].port>,<hosts[1].name>:<hosts[1].port>,(...)/<database>?querystring(<options>)
+```
+
+However if you set `config.url` directly, `setup` just uses the url rather creating another url.
+
 ### Query
 
 ```js
