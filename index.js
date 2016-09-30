@@ -115,23 +115,31 @@ DbWrapper.prototype.close = function() {
 };
 
 var setup = function(config) {
-  var url = 'mongodb://';
-  if (config.username) url += config.username + ':' + config.password + '@';
-  if (config.hosts) {
-    config.hosts.forEach(function(host, i) {
-      if (i != 0) url += ',';
-      url += host.name + ':' + (host.port || 27017);
-    });
+  var url = '';
+  if(config.uri || config.url) {
+    // if full url(or uri) string is given, use it.
+    url = config.uri || config.url;
   } else {
-    url += 'localhost';
+    // construct url string manually.
+    url = 'mongodb://';
+    if (config.username) url += config.username + ':' + config.password + '@';
+    if (config.hosts) {
+      config.hosts.forEach(function(host, i) {
+        if (i != 0) url += ',';
+        url += host.name + ':' + (host.port || 27017);
+      });
+    } else {
+      url += 'localhost';
+    }
+    url += '/' + (config.database + '');
+    if (config.options) {
+      Object.keys(config.options).forEach(function(option, i) {
+        url += i == 0 ? '?' : '&';
+        url += option + '=' + config.options[option];
+      });
+    };
   }
-  url += '/' + (config.database + '');
-  if (config.options) {
-    Object.keys(config.options).forEach(function(option, i) {
-      url += i == 0 ? '?' : '&';
-      url += option + '=' + config.options[option];
-    });
-  };
+  
   wrapper.db = new DbWrapper(url, config);
   return wrapper.db;
 };
